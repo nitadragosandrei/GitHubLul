@@ -74,6 +74,7 @@ if (cluster.isMaster) {
             } else {
                 sns.publish({
                     'Message': 'Name: ' + req.body.name + "\r\nEmail: " + req.body.email 
+                                        +"\r\nPassword:"+req.body.password
                                         + "\r\nPreviewAccess: " + req.body.previewAccess 
                                         + "\r\nTheme: " + req.body.theme,
                     'Subject': 'New user sign up!!!',
