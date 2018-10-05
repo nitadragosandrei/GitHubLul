@@ -1,0 +1,113 @@
+.ts-companycard-details li+li {
+    margin-right: 0px !important;
+}
+
+.ts-companycard-details li {
+    white-space: normal !important;
+}
+
+.ts-companycard-details .ts-companycard-location {
+    font-weight: bold !important;
+}
+
+.ts-companycard-details .ts-companycard-industry {
+    text-transform: none !important;
+    padding-left: 5px !important;
+}
+
+.left-component {
+    float: left;
+    width: 350px;
+    position: absolute !important;
+    top: 20px;
+    left: 40px;
+}
+
+.right-component {
+    float: right;
+    width: 350px;
+    position: absolute !important;
+    top: 20px;
+    left: 500px;
+}
+
+.common-layout {
+    float: left;
+}
+
+.special-layout {
+    float: right;
+    width: 400x;
+    position: absolute;
+    top: 20px;
+    left: 920px;
+    padding-left: 40px;
+}
+
+.lineV {
+    border-left: 2px solid gray !important;
+    height: 100%;
+    position: fixed;
+    margin-left: -1px;
+    top: 0;
+    left: 460px;
+}
+
+.lineV2 {
+    border-left: 2px solid gray !important;
+    height: 100%;
+    position: fixed;
+    margin-left: -1px;
+    top: 0;
+    left: 920px; 
+}
+
+.dashboard-wrapper {
+    width: 1150px;
+}
+
+.task-card {
+    margin-top: 10px;
+}
+
+.task-card:hover {
+    background-color: silver;
+    cursor: pointer;
+}
+
+.tasks-info {
+    text-align: center;
+}
+
+.manager-application {
+    border-style: solid;
+    border-width: 1px;
+    border-color: silver;
+    padding: 0px 10px 0px 10px;
+    background-color: white;
+    margin-bottom: 10px;
+}
+
+.applicant-name {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 11px !important;
+    margin-bottom: 10px;
+}
+
+.approve-reject {
+    height: 35px;
+}
+
+h3 {
+    margin-bottom: 30px;
+}

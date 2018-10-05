@@ -1,0 +1,226 @@
+frameworkVersion: ">=1.2.0 <2.0.0"
+
+service: slate
+
+provider:
+  name: aws
+  environment: ${file(./env.yml):${opt:stage, self:provider.stage}}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - dynamodb:Scan
+      - dynamodb:Query
+      - dynamodb:PutItem
+      - dynamodb:DeleteItem
+      - dynamodb:GetItem
+      - dynamodb:UpdateItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:*
+    - Effect: Allow
+      Action:
+      - cognito-sync:*
+      - cognito-identity:*
+      Resource: arn:aws:cognito-identity:*:*:*
+    - Effect: Allow
+      Action:
+      - cognito-idp:*
+      Resource: arn:aws:cognito-idp:*:*:*
+  runtime: nodejs8.10
+
+package:
+  exclude:
+    - .git/**
+
+# Functions
+
+functions:
+  signin:
+    handler: handler.signin
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication/signin/{provider}
+          method: get
+          integration: lambda-proxy
+  callback:
+    handler: handler.callback
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication/callback/{provider}
+          method: get
+          integration: lambda-proxy
+  refresh:
+    handler: handler.refresh
+    memorySize: 256
+    timeout: 15
+    events:
+      - http:
+          path: authentication/refresh/{refresh_token}
+          method: get
+          cors: true
+          integration: lambda
+          request:
+            template:
+              application/json: |
+                {
+                  "refresh_token":"$input.params('refresh_token')",
+                  "id":"$input.params('id')",
+                  "state":"$input.params('state')",
+                  "host":"$input.params().header.get('host')",
+                  "stage":"$context.stage"
+                }
+  authorize:
+    handler: handler.authorize
+  schema:
+    handler: handler.schema
+  whoami:
+    handler: handler.whoami
+    events:
+      - http:
+          path: whoami
+          method: get
+          cors: true
+          integration: lambda-proxy
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 60
+            identitySource: method.request.header.Authorization
+            type: token
+  getProjects:
+    handler: handler.getAllProjects
+    events:
+      - http:
+          path: getProjects
+          method: get
+          cors: true
+          integration: lambda-proxy
+  project:
+    handler: handler.getSpecificProject
+    events:
+      - http:
+          path: project
+          method: get
+          cors: true
+          integration: lambda-proxy
+  saveProject:
+    handler: handler.saveProject
+    events:
+      - http:
+          path: saveProject
+          method: post
+          integration: lambda-proxy
+          cors: true
+  pmApplication:
+    handler: handler.pmApplication
+    events:
+      - http:
+          path: pmApplication
+          method: post
+          integration: lambda-proxy
+          cors: true
+  resolveProjectManagerApplications:
+    handler: handler.resolvePMApplication
+    events:
+      - http:
+          path: resolvePmApplication
+          method: post
+          integration: lambda-proxy
+          cors: true
+  projectManagers:
+    handler: handler.projectManagers
+    events:
+      - http:
+          path: projectManagers
+          method: get
+          integration: lambda-proxy
+          cors: true
+  users:
+    handler: handler.users
+    events:
+      - http:
+          path: users
+          method: get
+          integration: lambda-proxy
+          cors: true
+  projectManagerApplications:
+    handler: handler.projectManagerApplications
+    events:
+      - http:
+          path: projectManagerApplications
+          method: get
+          integration: lambda-proxy
+          cors: true
+  saveUserRole:
+    handler: handler.saveUserRole
+    events:
+      - http:
+          path: userRole
+          method: post
+          integration: lambda-proxy
+          cors: true
+
+plugins:
+  - deployment-info
+  - serverless-offline
+
+resources:
+  Description: ${self:provider.environment.SERVICE} [${self:provider.environment.STAGE}] template
+  Resources:
+    CacheTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: token
+          AttributeType: S
+        - AttributeName: type
+          AttributeType: S
+        KeySchema:
+        - AttributeName: token
+          KeyType: HASH
+        - AttributeName: type
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.CACHE_DB_NAME}
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.USERS_DB_NAME}
+    ProjectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: projectKey
+          AttributeType: S
+        KeySchema:
+        - AttributeName: projectKey
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.PROJECTS_DB_NAME}
+    ProjectManagers:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: elementId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: elementId
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.APP_SETTINGS_DB_NAME}

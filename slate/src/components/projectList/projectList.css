@@ -1,0 +1,15 @@
+.project-item {
+    max-width: 750px;
+    margin-left: 425px;
+    margin-bottom: 3px;
+}
+
+.project-search {
+    margin-left: 425px;
+    max-width: 750px;
+    margin-bottom: 10px;
+}
+
+.project-title {
+    margin-left: 20px;
+}
